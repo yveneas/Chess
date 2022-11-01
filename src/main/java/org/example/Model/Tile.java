@@ -32,4 +32,20 @@ public class Tile {
     public void setPiece(Piece piece) {
         this.piece = piece;
     }
+
+    @Override
+    public String toString() {
+        if(piece == null) {
+            return "Tile{" +
+                    "x=" + x +
+                    ", y=" + y +
+                    ", piece=null" +
+                    '}';
+        }
+        return "Tile{" +
+                "x=" + x +
+                ", y=" + y +
+                ", piece=" + piece.toString() +
+                '}';
+    }
 }

@@ -1,45 +1,58 @@
 package org.example.Model;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.example.Model.Pieces.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Board {
-    private Tile[][] tiles;
+    @Getter
+    private List<List<Tile>> tiles;
 
     public Board() {
         this.resetBoard();
     }
 
     public void resetBoard() {
+        tiles = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            tiles.add(new ArrayList<>());
+            for (int j = 0; j < 8; j++) {
+                tiles.get(i).add(new Tile(i, j, null));
+            }
+        }
         //White side
-        tiles[0][0] = new Tile(0, 0, new Rook(true));
-        tiles[0][1] = new Tile(0, 1, new Knight(true));
-        tiles[0][2] = new Tile(0, 2, new Bishop(true));
-        tiles[0][3] = new Tile(0, 3, new Queen(true));
-        tiles[0][4] = new Tile(0, 4, new King(true));
-        tiles[0][5] = new Tile(0, 5, new Bishop(true));
-        tiles[0][6] = new Tile(0, 6, new Knight(true));
-        tiles[0][7] = new Tile(0, 7, new Rook(true));
+        tiles.get(0).set(0, new Tile(0, 0, new Rook(true)));
+        tiles.get(0).set(1, new Tile(1, 0, new Knight(true)));
+        tiles.get(0).set(2, new Tile(2, 0, new Bishop(true)));
+        tiles.get(0).set(3, new Tile(3, 0, new Queen(true)));
+        tiles.get(0).set(4, new Tile(4, 0, new King(true)));
+        tiles.get(0).set(5, new Tile(5, 0, new Bishop(true)));
+        tiles.get(0).set(6, new Tile(6, 0, new Knight(true)));
+        tiles.get(0).set(7, new Tile(7, 0, new Rook(true)));
         for(int i = 0; i < 8; i++) {
-            tiles[1][i] = new Tile(1, i, new Pawn(true));
+            tiles.get(1).set(i, new Tile(i, 1, new Pawn(true)));
         }
 
         //Black side
-        tiles[7][0] = new Tile(7, 0, new Rook(false));
-        tiles[7][1] = new Tile(7, 1, new Knight(false));
-        tiles[7][2] = new Tile(7, 2, new Bishop(false));
-        tiles[7][3] = new Tile(7, 3, new Queen(false));
-        tiles[7][4] = new Tile(7, 4, new King(false));
-        tiles[7][5] = new Tile(7, 5, new Bishop(false));
-        tiles[7][6] = new Tile(7, 6, new Knight(false));
-        tiles[7][7] = new Tile(7, 7, new Rook(false));
+        tiles.get(7).set(0, new Tile(0, 7, new Rook(false)));
+        tiles.get(7).set(1, new Tile(1, 7, new Knight(false)));
+        tiles.get(7).set(2, new Tile(2, 7, new Bishop(false)));
+        tiles.get(7).set(3, new Tile(3, 7, new Queen(false)));
+        tiles.get(7).set(4, new Tile(4, 7, new King(false)));
+        tiles.get(7).set(5, new Tile(5, 7, new Bishop(false)));
+        tiles.get(7).set(6, new Tile(6, 7, new Knight(false)));
+        tiles.get(7).set(7, new Tile(7, 7, new Rook(false)));
         for(int i = 0; i < 8; i++) {
-            tiles[6][i] = new Tile(6, i, new Pawn(false));
+            tiles.get(6).set(i, new Tile(i, 6, new Pawn(false)));
         }
 
         //Empty tiles
-        for(int i = 2; i < 6; i++) {
-            for(int j = 0; j < 8; j++) {
-                tiles[i][j] = new Tile(i, j, null);
+        for(int i = 0; i < 8; i++) {
+            for(int j = 2; j < 6; j++) {
+                tiles.get(j).set(i, new Tile(i, j, null));
             }
         }
     }
@@ -48,6 +61,49 @@ public class Board {
         if(x < 0 || x > 7 || y < 0 || y > 7) {
             return null;
         }
-        return tiles[x][y];
+        return tiles.get(y).get(x);
+    }
+
+    public int colorScore(boolean white) {
+        int score = 0;
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                Piece piece = tiles.get(i).get(j).getPiece();
+                if(piece != null && piece.isWhite() == white) {
+                    score += piece.getWeight();
+                }
+            }
+        }
+        return score;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                Piece piece = getTile(j, 7 - i).getPiece();
+                if(piece == null) {
+                    builder.append(" E ");
+                } else {
+                    builder.append(" ").append(piece.toString()).append(" ");
+                }
+            }
+            builder.append("\n");
+        }
+        return builder.toString();
+    }
+
+    public List<Move> getAllLegalMoves(Player player) {
+        List<Move> legalMoves = new ArrayList<>();
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                Piece piece = getTile(j, i).getPiece();
+                if(piece != null && player.isWhite() == piece.isWhite()) {
+                    legalMoves.addAll(piece.getLegalMoves(this, getTile(j, i), player));
+                }
+            }
+        }
+        return legalMoves;
     }
 }

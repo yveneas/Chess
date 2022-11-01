@@ -29,7 +29,7 @@ public class Game {
         this.players[0] = player1;
         this.players[1] = player2;
         this.board.resetBoard();
-        if(player1.isWhite()) {
+        if (player1.isWhite()) {
             this.currentPlayer = player1;
         } else {
             this.currentPlayer = player2;
@@ -44,26 +44,26 @@ public class Game {
     public boolean playerMove(Player player, int startX, int startY, int endX, int endY) {
         Tile startTile = board.getTile(startX, startY);
         Tile endTile = board.getTile(endX, endY);
-        Move move = new Move(startTile, endTile, player);
+        Move move = new Move(startTile, endTile,/*, player*/player);
         return this.makeMove(move, player);
     }
 
     private boolean makeMove(Move move, Player player) {
         Piece sourcePiece = move.getStartTile().getPiece();
         // Check if the player is moving the right piece
-        if(sourcePiece == null || player != currentPlayer || player.isWhite() != sourcePiece.isWhite()) {
+        if (sourcePiece == null || player != currentPlayer || player.isWhite() != sourcePiece.isWhite()) {
             return false;
         }
 
         //Kill
         Piece destPiece = move.getEndTile().getPiece();
-        if(destPiece != null) {
+        if (destPiece != null) {
             destPiece.setKilled(true);
             move.setPieceKilled(destPiece);
         }
 
         //Castling
-        if(sourcePiece instanceof King && ((King) sourcePiece).isCastlingMove()) {
+        if (sourcePiece instanceof King && ((King) sourcePiece).isCastlingMove()) {
             move.setCastlingMove(true);
         }
 
@@ -72,8 +72,8 @@ public class Game {
         move.getEndTile().setPiece(move.getStartTile().getPiece());
         move.getStartTile().setPiece(null);
 
-        if(destPiece instanceof King) {
-            if(destPiece.isWhite()) {
+        if (destPiece instanceof King) {
+            if (destPiece.isWhite()) {
                 gameStatus = GameStatus.WHITE_WIN;
             } else {
                 gameStatus = GameStatus.BLACK_WIN;
@@ -85,4 +85,68 @@ public class Game {
 
         return true;
     }
+
+    public void undoMove() {
+        if (moveHistory.size() == 0) {
+            return;
+        }
+        Move lastMove = moveHistory.remove(moveHistory.size() - 1);
+        Tile startTile = lastMove.getStartTile();
+        Tile endTile = lastMove.getEndTile();
+        startTile.setPiece(endTile.getPiece());
+        endTile.setPiece(lastMove.getPieceKilled());
+        if (lastMove.getPieceKilled() != null) {
+            lastMove.getPieceKilled().setKilled(false);
+        }
+        if (lastMove.isCastlingMove()) {
+            ((King) startTile.getPiece()).setCastlingDone(false);
+        }
+        currentPlayer = currentPlayer == players[0] ? players[1] : players[0];
+    }
+
+    public Move minimax(Board board, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
+        if (depth == 0) {
+            return moveHistory.get(moveHistory.size() - 1);
+        }
+
+        if (isMaximizingPlayer) {
+            List<Move> possibleMoves = board.getAllLegalMoves(players[0]);
+            Move bestMove = null;
+            int maxEval = Integer.MIN_VALUE;
+            for (Move move : possibleMoves) {
+                makeMove(move, players[0]);
+                int currentEval = minimax(board, depth - 1, alpha, beta, false).getEvaluation();
+                undoMove();
+                if (currentEval > maxEval) {
+                    maxEval = currentEval;
+                    bestMove = move;
+                }
+                alpha = Math.max(alpha, currentEval);
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+            return bestMove;
+        } else {
+            List<Move> possibleMoves = board.getAllLegalMoves(players[1]);
+            Move bestMove = null;
+            int minEval = Integer.MAX_VALUE;
+            for (Move move : possibleMoves) {
+                makeMove(move, players[1]);
+                int currentEval = minimax(board, depth - 1, alpha, beta, true).getEvaluation();
+                undoMove();
+                if (currentEval < minEval) {
+                    minEval = currentEval;
+                    bestMove = move;
+                }
+                beta = Math.min(beta, currentEval);
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+            return bestMove;
+        }
+    }
+
 }
+
