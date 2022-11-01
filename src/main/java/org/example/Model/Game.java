@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Game {
     @Getter @Setter
-    private Player[] players;
+    private List<Player> players;
     @Getter @Setter
     private Board board;
     @Getter @Setter
@@ -20,14 +20,16 @@ public class Game {
     @Getter @Setter
     private GameStatus gameStatus;
 
-    public Game() {
-        this.board = new Board();
+    public Game(Board board, Player player1, Player player2) {
+        this.players = new ArrayList<>();
+        this.board = board;
         this.moveHistory = new ArrayList<>();
+        this.initialize(player1, player2);
     }
 
     private void initialize(Player player1, Player player2) {
-        this.players[0] = player1;
-        this.players[1] = player2;
+        this.players.add(player1);
+        this.players.add(player2);
         this.board.resetBoard();
         if (player1.isWhite()) {
             this.currentPlayer = player1;
@@ -35,6 +37,7 @@ public class Game {
             this.currentPlayer = player2;
         }
         moveHistory.clear();
+        gameStatus = GameStatus.ACTIVE;
     }
 
     public boolean isEnd() {
@@ -44,7 +47,7 @@ public class Game {
     public boolean playerMove(Player player, int startX, int startY, int endX, int endY) {
         Tile startTile = board.getTile(startX, startY);
         Tile endTile = board.getTile(endX, endY);
-        Move move = new Move(startTile, endTile,/*, player*/player);
+        Move move = new Move(startTile, endTile, player);
         return this.makeMove(move, player);
     }
 
@@ -79,9 +82,10 @@ public class Game {
                 gameStatus = GameStatus.BLACK_WIN;
             }
         }
-
+        board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).setPiece(move.getStartTile().getPiece());
+        board.getTile(move.getStartTile().getX(), move.getStartTile().getY()).setPiece(null);
         //Switch player
-        currentPlayer = currentPlayer == players[0] ? players[1] : players[0];
+        currentPlayer = currentPlayer == players.get(0) ? players.get(1) : players.get(0);
 
         return true;
     }
@@ -101,7 +105,7 @@ public class Game {
         if (lastMove.isCastlingMove()) {
             ((King) startTile.getPiece()).setCastlingDone(false);
         }
-        currentPlayer = currentPlayer == players[0] ? players[1] : players[0];
+        currentPlayer = currentPlayer == players.get(0) ? players.get(1) : players.get(0);
     }
 
     public Move minimax(Board board, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
@@ -110,11 +114,11 @@ public class Game {
         }
 
         if (isMaximizingPlayer) {
-            List<Move> possibleMoves = board.getAllLegalMoves(players[0]);
+            List<Move> possibleMoves = board.getAllLegalMoves(players.get(0));
             Move bestMove = null;
             int maxEval = Integer.MIN_VALUE;
             for (Move move : possibleMoves) {
-                makeMove(move, players[0]);
+                makeMove(move, players.get(0));
                 int currentEval = minimax(board, depth - 1, alpha, beta, false).getEvaluation();
                 undoMove();
                 if (currentEval > maxEval) {
@@ -126,13 +130,14 @@ public class Game {
                     break;
                 }
             }
+            System.out.println(bestMove);
             return bestMove;
         } else {
-            List<Move> possibleMoves = board.getAllLegalMoves(players[1]);
+            List<Move> possibleMoves = board.getAllLegalMoves(players.get(1));
             Move bestMove = null;
             int minEval = Integer.MAX_VALUE;
             for (Move move : possibleMoves) {
-                makeMove(move, players[1]);
+                makeMove(move, players.get(1));
                 int currentEval = minimax(board, depth - 1, alpha, beta, true).getEvaluation();
                 undoMove();
                 if (currentEval < minEval) {

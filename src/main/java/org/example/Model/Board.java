@@ -98,9 +98,10 @@ public class Board {
         List<Move> legalMoves = new ArrayList<>();
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
-                Piece piece = getTile(j, i).getPiece();
+                Piece piece = getTile(i, j).getPiece();
+                //System.out.println(i + " " + j);
                 if(piece != null && player.isWhite() == piece.isWhite()) {
-                    legalMoves.addAll(piece.getLegalMoves(this, getTile(j, i), player));
+                    legalMoves.addAll(piece.getLegalMoves(this, getTile(i, j), player));
                 }
             }
         }

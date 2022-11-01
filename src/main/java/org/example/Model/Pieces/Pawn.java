@@ -17,17 +17,17 @@ public class Pawn extends Piece {
 
     @Override
     public boolean canMove(Board board, Tile startTile, Tile endTile) {
-
+        //System.out.println(startTile.getX() + " " + startTile.getY());
         if (endTile.getPiece() != null && endTile.getPiece().isWhite() == this.isWhite()) {
             return false;
         }
         if (this.isWhite()) {
             if (startTile.getY() == 1) {
                 return (startTile.getX() == endTile.getX() && (endTile.getY() == startTile.getY() + 1 || endTile.getY() == startTile.getY() + 2));
-            } else {
-                if((board.getTile(startTile.getX() + 1, startTile.getY()).getPiece() != null && board.getTile(startTile.getX() + 1, startTile.getY()).getPiece().isWhite() != this.isWhite())) {
+            } else if(startTile.getY() < 7) {
+                if(startTile.getX() < 7 && (board.getTile(startTile.getX() + 1, startTile.getY()).getPiece() != null && board.getTile(startTile.getX() + 1, startTile.getY()).getPiece().isWhite() != this.isWhite())) {
                     return (startTile.getX() + 1 == endTile.getX() && startTile.getY() + 1 == endTile.getY());
-                } else if (board.getTile(startTile.getX() - 1, startTile.getY()).getPiece() != null && board.getTile(startTile.getX() - 1, startTile.getY()).getPiece().isWhite() != this.isWhite()) {
+                } else if (startTile.getX() > 0 && board.getTile(startTile.getX() - 1, startTile.getY()).getPiece() != null && board.getTile(startTile.getX() - 1, startTile.getY()).getPiece().isWhite() != this.isWhite()) {
                     return (startTile.getX() - 1 == endTile.getX() && startTile.getY() + 1 == endTile.getY());
                 }
                 return (startTile.getX() == endTile.getX() && endTile.getY() == startTile.getY() + 1);
@@ -36,14 +36,15 @@ public class Pawn extends Piece {
             if (startTile.getY() == 6) {
                 return (startTile.getX() == endTile.getX() && (endTile.getY() == startTile.getY() - 1 || endTile.getY() == startTile.getY() - 2));
             } else {
-                if((board.getTile(startTile.getX() + 1, startTile.getY()).getPiece() != null && board.getTile(startTile.getX() + 1, startTile.getY()).getPiece().isWhite() != this.isWhite())) {
-                    return (startTile.getX() + 1 == endTile.getX() && startTile.getY() + 1 == endTile.getY());
-                } else if (board.getTile(startTile.getX() - 1, startTile.getY()).getPiece() != null && board.getTile(startTile.getX() - 1, startTile.getY()).getPiece().isWhite() != this.isWhite()) {
-                    return (startTile.getX() - 1 == endTile.getX() && startTile.getY() + 1 == endTile.getY());
+                if(startTile.getX() < 7 && (board.getTile(startTile.getX() + 1, startTile.getY()).getPiece() != null && board.getTile(startTile.getX() + 1, startTile.getY()).getPiece().isWhite() != this.isWhite())) {
+                    return (startTile.getX() + 1 == endTile.getX() && startTile.getY() - 1 == endTile.getY());
+                } else if (startTile.getX() > 0 && board.getTile(startTile.getX() - 1, startTile.getY()).getPiece() != null && board.getTile(startTile.getX() - 1, startTile.getY()).getPiece().isWhite() != this.isWhite()) {
+                    return (startTile.getX() - 1 == endTile.getX() && startTile.getY() - 1 == endTile.getY());
                 }
             }
             return (startTile.getX() == endTile.getX() && endTile.getY() == startTile.getY() - 1);
         }
+        return false;
     }
 
     @Override
@@ -52,7 +53,7 @@ public class Pawn extends Piece {
         int x = startTile.getX();
         int y = startTile.getY();
         for(int i = -1; i <= 1; i++) {
-            for(int j = -1; j <= 2; j++) {
+            for(int j = -2; j <= 2; j++) {
                 if (i == 0 && j == 0) {
                     continue;
                 }
@@ -64,6 +65,8 @@ public class Pawn extends Piece {
                 }
             }
         }
+        //En passant
+
         return legalMoves;
     }
 
