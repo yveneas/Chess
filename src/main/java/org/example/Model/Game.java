@@ -50,6 +50,7 @@ public class Game {
         return this.makeMove(move, player);
     }
 
+    //Revoir minimax pour changer le joueur courant
     private boolean makeMove(Move move, Player player) {
         Piece sourcePiece = move.getStartTile().getPiece();
         // Check if the player is moving the right piece
@@ -129,7 +130,6 @@ public class Game {
                     break;
                 }
             }
-            System.out.println(bestMove);
             return bestMove;
         } else {
             List<Move> possibleMoves = board.getAllLegalMoves(players.get(1));

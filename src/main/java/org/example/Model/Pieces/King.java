@@ -46,6 +46,7 @@ public class King extends Piece {
     }
 
     public boolean isCastlingMove() {
+        //TODO implement castling
         return false;
     }
 
