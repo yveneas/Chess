@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.Model.Pieces.King;
 import org.example.Model.Pieces.Piece;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,14 +15,14 @@ public class Game {
     @Getter @Setter
     private Player currentPlayer;
     @Getter @Setter
-    private List<Move> moveHistory;
+    public static List<Move> moveHistory;
     @Getter @Setter
     private GameStatus gameStatus;
 
     public Game(Board board, Player player1, Player player2) {
         this.players = new ArrayList<>();
         this.board = board;
-        this.moveHistory = new ArrayList<>();
+        moveHistory = new ArrayList<>();
         this.initialize(player1, player2);
     }
 
@@ -82,7 +81,7 @@ public class Game {
                 gameStatus = GameStatus.BLACK_WIN;
             }
         }
-        board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).setPiece(move.getStartTile().getPiece());
+        board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).setPiece(move.getEndTile().getPiece());
         board.getTile(move.getStartTile().getX(), move.getStartTile().getY()).setPiece(null);
         //Switch player
         currentPlayer = currentPlayer == players.get(0) ? players.get(1) : players.get(0);

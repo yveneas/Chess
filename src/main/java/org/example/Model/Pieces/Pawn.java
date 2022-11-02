@@ -1,9 +1,6 @@
 package org.example.Model.Pieces;
 
-import org.example.Model.Board;
-import org.example.Model.Move;
-import org.example.Model.Player;
-import org.example.Model.Tile;
+import org.example.Model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +19,7 @@ public class Pawn extends Piece {
             return false;
         }
         if (this.isWhite()) {
-            if (startTile.getY() == 1) {
+            if (startTile.getY() == 1 && board.getTile(startTile.getX(), 2).getPiece() == null) {
                 return (startTile.getX() == endTile.getX() && (endTile.getY() == startTile.getY() + 1 || endTile.getY() == startTile.getY() + 2));
             } else if(startTile.getY() < 7) {
                 if(startTile.getX() < 7 && (board.getTile(startTile.getX() + 1, startTile.getY()).getPiece() != null && board.getTile(startTile.getX() + 1, startTile.getY()).getPiece().isWhite() != this.isWhite())) {
@@ -33,7 +30,7 @@ public class Pawn extends Piece {
                 return (startTile.getX() == endTile.getX() && endTile.getY() == startTile.getY() + 1);
             }
         } else {
-            if (startTile.getY() == 6) {
+            if (startTile.getY() == 6 && board.getTile(startTile.getX(), 5).getPiece() == null) {
                 return (startTile.getX() == endTile.getX() && (endTile.getY() == startTile.getY() - 1 || endTile.getY() == startTile.getY() - 2));
             } else {
                 if(startTile.getX() < 7 && (board.getTile(startTile.getX() + 1, startTile.getY()).getPiece() != null && board.getTile(startTile.getX() + 1, startTile.getY()).getPiece().isWhite() != this.isWhite())) {
@@ -65,7 +62,36 @@ public class Pawn extends Piece {
                 }
             }
         }
-        //En passant
+
+        // En passant
+        if (!Game.getMoveHistory().isEmpty()) {
+            Piece pieceMoved = Game.getMoveHistory().get(Game.getMoveHistory().size() - 1).getPieceMoved();
+            // Noir prend blanc
+            if (y == 3) {
+                if (x > 0 && board.getTile(x - 1, y).getPiece() == pieceMoved &&
+                        board.getTile(x - 1, y).getPiece().isWhite() != this.isWhite() &&
+                        board.getTile(x - 1, y).getPiece() instanceof Pawn) {
+                    legalMoves.add(new Move(startTile, board.getTile(x - 1, y + 1), player));
+                }
+                if (x < 7 && board.getTile(x + 1, y).getPiece() == pieceMoved &&
+                        board.getTile(x + 1, y).getPiece().isWhite() != this.isWhite() &&
+                        board.getTile(x + 1, y).getPiece() instanceof Pawn) {
+                    legalMoves.add(new Move(startTile, board.getTile(x + 1, y + 1), player));
+                }
+                // Blanc prend noir
+            } else if (y == 4) {
+                if (x > 0 && board.getTile(x - 1, y).getPiece() == pieceMoved &&
+                        board.getTile(x - 1, y).getPiece().isWhite() != this.isWhite() &&
+                        board.getTile(x - 1, y).getPiece() instanceof Pawn) {
+                    legalMoves.add(new Move(startTile, board.getTile(x - 1, y - 1), player));
+                }
+                if (x < 7 && board.getTile(x + 1, y).getPiece() == pieceMoved &&
+                        board.getTile(x + 1, y).getPiece().isWhite() != this.isWhite() &&
+                        board.getTile(x + 1, y).getPiece() instanceof Pawn) {
+                    legalMoves.add(new Move(startTile, board.getTile(x + 1, y - 1), player));
+                }
+            }
+        }
 
         return legalMoves;
     }

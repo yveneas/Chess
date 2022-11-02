@@ -6,5 +6,6 @@ public enum GameStatus {
     BLACK_WIN,
     FORFEIT,
     STALEMATE,
-    RESIGNATION
+    TIMEOUT,
+    AGREED_DRAW
 }

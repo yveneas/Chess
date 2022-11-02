@@ -23,13 +23,6 @@ public abstract class Piece {
         this.white = color;
     }
 
-    public boolean isWhite() {
-        return white;
-    }
-
-    public boolean isKilled() {
-        return killed;
-    }
     public abstract boolean canMove(Board board, Tile startTile, Tile endTile);
 
     public abstract List<Move> getLegalMoves(Board board, Tile startTile, Player player);

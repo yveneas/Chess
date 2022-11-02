@@ -13,8 +13,4 @@ public class Player {
         this.white = white;
         this.turn = false;
     }
-
-    public boolean isWhite() {
-        return white;
-    }
 }

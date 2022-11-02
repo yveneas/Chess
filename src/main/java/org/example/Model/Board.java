@@ -86,7 +86,7 @@ public class Board {
                 if(piece == null) {
                     builder.append(" E ");
                 } else {
-                    builder.append(" ").append(piece.toString()).append(" ");
+                    builder.append(" ").append(piece).append(" ");
                 }
             }
             builder.append("\n");
