@@ -27,12 +27,13 @@ public class Main {
                 //TODO
             }
             else if ("ucinewgame".equals(input)) {
-                //TODO
+                game.newGame(player1, player2);
             }
             else if (input.startsWith("position")) {
-                Move move = game.minimax(board, 1, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+                Move move = game.minimax(board, 4, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
                 System.out.println(board.getTile(move.getStartTile().getX(), move.getStartTile().getY()));
-                boolean test =  game.playerMove(player1, move.getStartTile().getX(), move.getStartTile().getY(), move.getEndTile().getX(), move.getEndTile().getY());
+                boolean test =  game.playerMove(game.getCurrentPlayer(), move.getStartTile().getX(), move.getStartTile().getY(), move.getEndTile().getX(), move.getEndTile().getY());
+                System.out.println(board);
             }
             else if ("go".equals(input)) {
                 Move move = game.minimax(board, 1, Integer.MIN_VALUE, Integer.MAX_VALUE, true);

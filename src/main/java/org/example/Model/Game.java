@@ -26,16 +26,20 @@ public class Game {
         this.initialize(player1, player2);
     }
 
+    public void newGame(Player player1, Player player2) {
+        this.board.resetBoard();
+        moveHistory.clear();
+        this.initialize(player1, player2);
+    }
+
     private void initialize(Player player1, Player player2) {
         this.players.add(player1);
         this.players.add(player2);
-        this.board.resetBoard();
         if (player1.isWhite()) {
             this.currentPlayer = player1;
         } else {
             this.currentPlayer = player2;
         }
-        moveHistory.clear();
         gameStatus = GameStatus.ACTIVE;
     }
 
@@ -108,17 +112,18 @@ public class Game {
         currentPlayer = currentPlayer == players.get(0) ? players.get(1) : players.get(0);
     }
 
+
     public Move minimax(Board board, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
         if (depth == 0) {
             return moveHistory.get(moveHistory.size() - 1);
         }
 
         if (isMaximizingPlayer) {
-            List<Move> possibleMoves = board.getAllLegalMoves(players.get(0));
+            List<Move> possibleMoves = board.getAllLegalMoves(currentPlayer);
             Move bestMove = null;
             int maxEval = Integer.MIN_VALUE;
             for (Move move : possibleMoves) {
-                makeMove(move, players.get(0));
+                makeMove(move, currentPlayer);
                 int currentEval = minimax(board, depth - 1, alpha, beta, false).getEvaluation();
                 undoMove();
                 if (currentEval > maxEval) {
@@ -132,11 +137,11 @@ public class Game {
             }
             return bestMove;
         } else {
-            List<Move> possibleMoves = board.getAllLegalMoves(players.get(1));
+            List<Move> possibleMoves = board.getAllLegalMoves(currentPlayer);
             Move bestMove = null;
             int minEval = Integer.MAX_VALUE;
             for (Move move : possibleMoves) {
-                makeMove(move, players.get(1));
+                makeMove(move, currentPlayer);
                 int currentEval = minimax(board, depth - 1, alpha, beta, true).getEvaluation();
                 undoMove();
                 if (currentEval < minEval) {

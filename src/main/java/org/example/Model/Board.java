@@ -15,6 +15,60 @@ public class Board {
         this.resetBoard();
     }
 
+    /*private void customBoard() {
+        tiles = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            tiles.add(new ArrayList<>());
+            for (int j = 0; j < 8; j++) {
+                tiles.get(i).add(new Tile(i, j, null));
+            }
+        }
+
+        //White side
+        tiles.get(0).set(0, new Tile(0, 0, null));
+        tiles.get(0).set(1, new Tile(1, 0, new Rook(true)));
+        tiles.get(0).set(2, new Tile(2, 0, new Bishop(true)));
+        tiles.get(0).set(3, new Tile(3, 0, new Queen(true)));
+        tiles.get(0).set(4, new Tile(4, 0, new King(true)));
+        tiles.get(0).set(5, new Tile(5, 0, new Bishop(true)));
+        tiles.get(0).set(6, new Tile(6, 0, new Knight(true)));
+        tiles.get(0).set(7, new Tile(7, 0, new Rook(true)));
+        tiles.get(1).set(0, new Tile(0, 1, null));
+        for(int i = 1; i < 8; i++) {
+            tiles.get(1).set(i, new Tile(i, 1, new Pawn(true)));
+        }
+
+        //Black side
+        tiles.get(7).set(0, new Tile(0, 7, new Rook(false)));
+        tiles.get(7).set(1, new Tile(1, 7, new Knight(false)));
+        tiles.get(7).set(2, new Tile(2, 7, new Bishop(false)));
+        tiles.get(7).set(3, new Tile(3, 7, new Queen(false)));
+        tiles.get(7).set(4, new Tile(4, 7, new King(false)));
+        tiles.get(7).set(5, new Tile(5, 7, new Bishop(false)));
+        tiles.get(7).set(6, new Tile(6, 7, new Knight(false)));
+        tiles.get(7).set(7, new Tile(7, 7, new Rook(false)));
+        tiles.get(6).set(0, new Tile(0, 6, null));
+        for(int i = 1; i < 8; i++) {
+            tiles.get(6).set(i, new Tile(i, 6, new Pawn(false)));
+        }
+
+        //Empty tiles
+        for(int i = 0; i < 8; i++) {
+            for(int j = 2; j < 6; j++) {
+                if (i==0 && j==3) {
+                    tiles.get(j).set(i, new Tile(i, j, new Pawn(true)));
+                }
+                else if (i==0 && j==4) {
+                    tiles.get(j).set(i, new Tile(i, j, new Pawn(false)));
+                }
+                else if (i==2 && j==2) {
+                    tiles.get(j).set(i, new Tile(i, j, new Knight(true)));
+                }
+                else
+                    tiles.get(j).set(i, new Tile(i, j, null));
+            }
+        }
+    }*/
     public void resetBoard() {
         tiles = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
