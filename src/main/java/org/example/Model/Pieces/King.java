@@ -42,7 +42,43 @@ public class King extends Piece {
                 }
             }
         }
+
+        //Castling
+        if(!castlingDone && !isInCheck(board, player)) {
+            if(!board.getTile(1, y).isOccupied() && !board.getTile(2, y).isOccupied() && !board.getTile(3, y).isOccupied()) {
+                if(board.getTile(0, y).getPiece() instanceof Rook && !((Rook) board.getTile(0, y).getPiece()).isCastlingDone()) {
+                    legalMoves.add(new Move(startTile, board.getTile(2, y), player));
+                }
+            }
+            if(!board.getTile(5, y).isOccupied() && !board.getTile(6, y).isOccupied()) {
+                if(board.getTile(7, y).getPiece() instanceof Rook && !((Rook) board.getTile(7, y).getPiece()).isCastlingDone()) {
+                    legalMoves.add(new Move(startTile, board.getTile(6, y), player));
+                }
+            }
+        }
         return legalMoves;
+    }
+
+    private boolean isInCheck(Board board, Player player) {
+        Tile kingTile = null;
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                if(board.getTile(i, j).isOccupied() && board.getTile(i, j).getPiece() instanceof King && board.getTile(i, j).getPiece().isWhite() == player.isWhite()) {
+                    kingTile = board.getTile(i, j);
+                }
+            }
+        }
+        assert kingTile != null;
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                if(board.getTile(i, j).isOccupied() && board.getTile(i, j).getPiece().isWhite() != player.isWhite()) {
+                    if (board.getTile(i, j).getPiece().getLegalMoves(board, board.getTile(i, j), player).contains(new Move(board.getTile(i, j), kingTile, player))) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public boolean isCastlingMove() {

@@ -1,5 +1,7 @@
 package org.example.Model.Pieces;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.example.Model.Board;
 import org.example.Model.Move;
 import org.example.Model.Player;
@@ -9,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Rook extends Piece {
+
+    @Getter @Setter
+    private boolean castlingDone = false;
 
     public Rook(boolean color) {
         super(color);

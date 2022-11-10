@@ -112,7 +112,6 @@ public class Game {
         currentPlayer = currentPlayer == players.get(0) ? players.get(1) : players.get(0);
     }
 
-
     public Move minimax(Board board, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
         if (depth == 0) {
             return moveHistory.get(moveHistory.size() - 1);

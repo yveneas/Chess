@@ -18,6 +18,10 @@ public class Tile {
         this.piece = piece;
     }
 
+    public boolean isOccupied() {
+        return piece != null;
+    }
+
     @Override
     public String toString() {
         if(piece == null) {
