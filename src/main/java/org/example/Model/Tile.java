@@ -18,6 +18,12 @@ public class Tile {
         this.piece = piece;
     }
 
+    public Tile(Tile tile) {
+        this.x = tile.getX();
+        this.y = tile.getY();
+        this.piece = tile.getPiece();
+    }
+
     public boolean isOccupied() {
         return piece != null;
     }

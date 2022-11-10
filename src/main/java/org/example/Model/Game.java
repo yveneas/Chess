@@ -6,6 +6,7 @@ import org.example.Model.Pieces.King;
 import org.example.Model.Pieces.Piece;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Game {
     @Getter @Setter
@@ -26,135 +27,166 @@ public class Game {
         this.initialize(player1, player2);
     }
 
-    public void newGame(Player player1, Player player2) {
-        this.board.resetBoard();
-        moveHistory.clear();
-        this.initialize(player1, player2);
-    }
-
     private void initialize(Player player1, Player player2) {
         this.players.add(player1);
         this.players.add(player2);
+        this.board.resetBoard();
         if (player1.isWhite()) {
             this.currentPlayer = player1;
         } else {
             this.currentPlayer = player2;
         }
+        moveHistory.clear();
         gameStatus = GameStatus.ACTIVE;
     }
 
-    public boolean isEnd() {
-        return gameStatus != GameStatus.ACTIVE;
-    }
-
-    public boolean playerMove(Player player, int startX, int startY, int endX, int endY) {
-        Tile startTile = board.getTile(startX, startY);
-        Tile endTile = board.getTile(endX, endY);
-        Move move = new Move(startTile, endTile, player);
-        return this.makeMove(move, player);
-    }
-
-    //Revoir minimax pour changer le joueur courant
-    private boolean makeMove(Move move, Player player) {
-        Piece sourcePiece = move.getStartTile().getPiece();
-        // Check if the player is moving the right piece
-        if (sourcePiece == null || player != currentPlayer || player.isWhite() != sourcePiece.isWhite()) {
-            return false;
-        }
-
-        //Kill
-        Piece destPiece = move.getEndTile().getPiece();
-        if (destPiece != null) {
-            destPiece.setKilled(true);
-            move.setPieceKilled(destPiece);
-        }
-
-        //Castling
-        if (sourcePiece instanceof King && ((King) sourcePiece).isCastlingMove()) {
-            move.setCastlingMove(true);
-        }
-
-        moveHistory.add(move);
-
-        move.getEndTile().setPiece(move.getStartTile().getPiece());
-        move.getStartTile().setPiece(null);
-
-        if (destPiece instanceof King) {
-            if (destPiece.isWhite()) {
+    public void makeMove(Move move) {
+        if (move.getPieceKilled() instanceof King) {
+            if (move.getPlayer().isWhite()) {
                 gameStatus = GameStatus.WHITE_WIN;
             } else {
                 gameStatus = GameStatus.BLACK_WIN;
             }
         }
-        board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).setPiece(move.getEndTile().getPiece());
+        moveHistory.add(move);
+        board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).setPiece(move.getPieceMoved());
         board.getTile(move.getStartTile().getX(), move.getStartTile().getY()).setPiece(null);
-        //Switch player
-        currentPlayer = currentPlayer == players.get(0) ? players.get(1) : players.get(0);
-
-        return true;
+        if (currentPlayer.isWhite()) {
+            currentPlayer = players.get(1);
+        } else {
+            currentPlayer = players.get(0);
+        }
     }
 
     public void undoMove() {
-        if (moveHistory.size() == 0) {
-            return;
+        if (moveHistory.size() > 0) {
+            Move lastMove = moveHistory.get(moveHistory.size() - 1);
+            board.getTile(lastMove.getStartTile().getX(), lastMove.getStartTile().getY()).setPiece(lastMove.getPieceMoved());
+            board.getTile(lastMove.getEndTile().getX(), lastMove.getEndTile().getY()).setPiece(lastMove.getPieceKilled());
+            moveHistory.remove(moveHistory.size() - 1);
+            if (currentPlayer.isWhite()) {
+                currentPlayer = players.get(1);
+            } else {
+                currentPlayer = players.get(0);
+            }
         }
-        Move lastMove = moveHistory.remove(moveHistory.size() - 1);
-        Tile startTile = lastMove.getStartTile();
-        Tile endTile = lastMove.getEndTile();
-        startTile.setPiece(endTile.getPiece());
-        endTile.setPiece(lastMove.getPieceKilled());
-        if (lastMove.getPieceKilled() != null) {
-            lastMove.getPieceKilled().setKilled(false);
-        }
-        if (lastMove.isCastlingMove()) {
-            ((King) startTile.getPiece()).setCastlingDone(false);
-        }
-        currentPlayer = currentPlayer == players.get(0) ? players.get(1) : players.get(0);
+        gameStatus = GameStatus.ACTIVE;
     }
 
-    public Move minimax(Board board, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
+    public Move bestMove(int depth, int alpha, int beta, boolean maximizingPlayer) {
         if (depth == 0) {
-            return moveHistory.get(moveHistory.size() - 1);
+            return null;
         }
-
-        if (isMaximizingPlayer) {
-            List<Move> possibleMoves = board.getAllLegalMoves(currentPlayer);
-            Move bestMove = null;
-            int maxEval = Integer.MIN_VALUE;
+        List<Move> equalMoves = new ArrayList<>();
+        List<Move> possibleMoves = board.getAllLegalMoves(currentPlayer);
+        Move bestMove = null;
+        if (maximizingPlayer) {
+            int bestValue = Integer.MIN_VALUE;
             for (Move move : possibleMoves) {
-                makeMove(move, currentPlayer);
-                int currentEval = minimax(board, depth - 1, alpha, beta, false).getEvaluation();
-                undoMove();
-                if (currentEval > maxEval) {
-                    maxEval = currentEval;
-                    bestMove = move;
+                if(board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).getPiece() instanceof King) {
+                    return move;
                 }
-                alpha = Math.max(alpha, currentEval);
+                makeMove(move);
+                int value = minimax(depth - 1, alpha, beta, false);
+                //System.out.println("move: " + move + " value: " + value);
+                undoMove();
+                if (value > bestValue) {
+                    bestValue = value;
+                    bestMove = move;
+                    equalMoves.clear();
+                    equalMoves.add(move);
+                } else if(value == bestValue) {
+                    equalMoves.add(move);
+                }
+                alpha = Math.max(alpha, bestValue);
                 if (beta <= alpha) {
                     break;
                 }
+            }
+            if(equalMoves.size() > 1) {
+                Random random = new Random();
+                bestMove = equalMoves.get(random.nextInt(equalMoves.size()));
             }
             return bestMove;
         } else {
-            List<Move> possibleMoves = board.getAllLegalMoves(currentPlayer);
-            Move bestMove = null;
-            int minEval = Integer.MAX_VALUE;
+            int bestValue = Integer.MAX_VALUE;
             for (Move move : possibleMoves) {
-                makeMove(move, currentPlayer);
-                int currentEval = minimax(board, depth - 1, alpha, beta, true).getEvaluation();
-                undoMove();
-                if (currentEval < minEval) {
-                    minEval = currentEval;
-                    bestMove = move;
+                if(board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).getPiece() instanceof King) {
+                    return move;
                 }
-                beta = Math.min(beta, currentEval);
+                makeMove(move);
+                int value = minimax(depth - 1, alpha, beta, true);
+
+                undoMove();
+                if (value < bestValue) {
+                    bestValue = value;
+                    bestMove = move;
+                    equalMoves.clear();
+                    equalMoves.add(move);
+                } else if(value == bestValue) {
+                    equalMoves.add(move);
+                }
+                beta = Math.min(beta, bestValue);
                 if (beta <= alpha) {
                     break;
                 }
+            }
+            if(equalMoves.size() > 1) {
+                Random random = new Random();
+                bestMove = equalMoves.get(random.nextInt(equalMoves.size()));
             }
             return bestMove;
         }
     }
 
+    private int minimax(int depth, int alpha, int beta, boolean maximizingPlayer) {
+        if (depth == 0 || gameStatus != GameStatus.ACTIVE) {
+            //System.out.println("Evaluation: " + board.evaluateBoard(currentPlayer, getOpponent()) + " moves: " + moveHistory);
+            return board.evaluateBoard(currentPlayer, getOpponent());
+        }
+        if (maximizingPlayer) {
+            int maxEval = Integer.MIN_VALUE;
+            List<Move> allMoves = board.getAllLegalMoves(currentPlayer);
+            for (Move move : allMoves) {
+                if(board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).getPiece() instanceof King) {
+                    return Integer.MAX_VALUE;
+                }
+                makeMove(move);
+                int eval = minimax(depth - 1, alpha, beta, false);
+                maxEval = Math.max(maxEval, eval);
+                alpha = Math.max(alpha, eval);
+                undoMove();
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+            return maxEval;
+        } else {
+            int minEval = Integer.MAX_VALUE;
+            List<Move> allMoves = board.getAllLegalMoves(currentPlayer);
+            for (Move move : allMoves) {
+                if(board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).getPiece() instanceof King) {
+                    return Integer.MIN_VALUE;
+                }
+                makeMove(move);
+                int eval = minimax(depth - 1, alpha, beta, true);
+                minEval = Math.min(minEval, eval);
+                beta = Math.min(beta, eval);
+                undoMove();
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+            return minEval;
+        }
+    }
+
+    public Player getOpponent() {
+        return currentPlayer == players.get(0) ? players.get(1) : players.get(0);
+    }
+
+    public boolean isCheckMate() {
+        return moveHistory.get(moveHistory.size() - 1).getPieceKilled() instanceof King;
+    }
 }
 

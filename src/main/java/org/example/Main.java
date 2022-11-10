@@ -8,9 +8,10 @@ public class Main {
     public static void main(String[] args) {
 
         Board board = new Board();
-        Player player1 = new Player(true);
-        Player player2 = new Player(false);
-        Game game = new Game(board, player1, player2);
+        Player whitePlayer = new Player(true);
+        Player blackPlayer = new Player(false);
+        Game game = new Game(board, whitePlayer, blackPlayer);
+
         while (true) {
             Scanner scanner = new Scanner(System.in);
             String input = scanner.nextLine();
@@ -27,29 +28,60 @@ public class Main {
                 //TODO
             }
             else if ("ucinewgame".equals(input)) {
-                game.newGame(player1, player2);
+                //TODO
             }
             else if (input.startsWith("position")) {
-                Move move = game.minimax(board, 4, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
-                System.out.println(board.getTile(move.getStartTile().getX(), move.getStartTile().getY()));
-                boolean test =  game.playerMove(game.getCurrentPlayer(), move.getStartTile().getX(), move.getStartTile().getY(), move.getEndTile().getX(), move.getEndTile().getY());
-                System.out.println(board);
+                while(!board.isCheck(whitePlayer) && !board.isCheck(blackPlayer) && GameStatus.ACTIVE.equals(game.getGameStatus())) {
+                    System.out.println(game.getCurrentPlayer().isWhite() ? "White" : "Black");
+                    Move move = game.bestMove(3, Integer.MIN_VALUE, Integer.MAX_VALUE, game.getCurrentPlayer().isWhite());
+                    game.makeMove(move);
+                    System.out.println("Evaluation: " + board.evaluateBoard(game.getCurrentPlayer(), game.getOpponent()));
+                    System.out.println(board);
+                    if(game.isCheckMate()) {
+                        if(game.getCurrentPlayer().isWhite()) {
+                            System.out.println("Black wins");
+                        }
+                        else {
+                            System.out.println("White wins");
+                        }
+                        break;
+                    }
+                }
+                System.out.println("Situation d'échec");
             }
-            else if ("go".equals(input)) {
-                Move move = game.minimax(board, 1, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+            else if(input.equals("go")) {
+                System.out.println(game.getCurrentPlayer().isWhite() ? "White" : "Black");
+                Move move = game.bestMove(3, Integer.MIN_VALUE, Integer.MAX_VALUE, game.getCurrentPlayer().isWhite());
+                game.makeMove(move);
+                System.out.println("Evaluation: " + board.evaluateBoard(game.getCurrentPlayer(), game.getOpponent()));
+                System.out.println(board);
             }
             else if ("print".equals(input)) {
                 //TODO
                 System.out.println(board);
             }
+            else if(input.equals("legalmoves")) {
+                for(Move move : game.getBoard().getAllLegalMoves(game.getCurrentPlayer())) {
+                    //System.out.println(move + " " + move.getEvaluation(board));
+                }
+            }
+            else if(input.equals("undo")) {
+                game.undoMove();
+            }
             else if(input.equals("quit")) {
                 System.exit(0);
+            }
+            else if(input.equals("eval")) {
+                System.out.println(board.evaluateBoard(game.getCurrentPlayer(), game.getOpponent()));;
+            }
+            else {
+                System.out.println("Commande inconnue");
             }
         }
         //System.out.println(board);
         //System.out.println(board.getTile(3, 0));
         //System.out.println(board.getTile(1, 1).getPiece().canMove(board, board.getTile(1, 1), board.getTile(1, 2)));
         //System.out.println(board.getTile(1, 7).getPiece().isWhite());
-        //System.out.println(board.getTile(3, 0).getPiece().getLegalMoves(board, board.getTile(2, 3), player1).size());
+        //System.out.println(board.getTile(3, 0).getPiece().getLegalMoves(board, board.getTile(2, 3), whitePlayer).size());
     }
 }
