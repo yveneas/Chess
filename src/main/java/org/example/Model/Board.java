@@ -15,6 +15,16 @@ public class Board {
         this.resetBoard();
     }
 
+    public Board(Board board) {
+        this.tiles = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            this.tiles.add(new ArrayList<>());
+            for (int j = 0; j < 8; j++) {
+                this.tiles.get(i).add(new Tile(board.getTile(i, j)));
+            }
+        }
+    }
+
     public void resetBoard() {
         tiles = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
@@ -64,14 +74,44 @@ public class Board {
         return tiles.get(y).get(x);
     }
 
-    public int colorScore(boolean white) {
+    public int evaluateBoard(Player currentPlayer, Player opponent) {
         int score = 0;
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
                 Piece piece = tiles.get(i).get(j).getPiece();
-                if(piece != null && piece.isWhite() == white) {
-                    score += piece.getWeight();
+                if(currentPlayer.isWhite()) {
+                    if(piece != null) {
+                        if(piece.isWhite() == currentPlayer.isWhite()) {
+                            score += piece.getWeight();
+                        } else {
+                            score -= piece.getWeight();
+                        }
+                    }
+                } else {
+                    if(piece != null) {
+                        if(piece.isWhite() == currentPlayer.isWhite()) {
+                            score -= piece.getWeight();
+                        } else {
+                            score += piece.getWeight();
+                        }
+                    }
                 }
+            }
+        }
+        if(currentPlayer.isWhite() && isCheck(currentPlayer)) {
+            score -= 850;
+        } else if(!currentPlayer.isWhite() && isCheck(currentPlayer)) {
+            score += 850;
+        } else if(currentPlayer.isWhite() && isCheck(opponent)) {
+            score += 850;
+        } else if(!currentPlayer.isWhite() && isCheck(opponent)) {
+            score -= 850;
+        }
+        if(Game.moveHistory.size() > 0 && Game.moveHistory.get(Game.moveHistory.size() - 1).getPieceKilled() != null) {
+            if(currentPlayer.isWhite() == Game.moveHistory.get(Game.moveHistory.size() - 1).getPlayer().isWhite()) {
+                return score + Game.moveHistory.get(Game.moveHistory.size() - 1).getPieceKilled().getWeight();
+            } else {
+                return score - Game.moveHistory.get(Game.moveHistory.size() - 1).getPieceKilled().getWeight();
             }
         }
         return score;
@@ -84,17 +124,48 @@ public class Board {
             for(int j = 0; j < 8; j++) {
                 Piece piece = getTile(j, 7 - i).getPiece();
                 if(piece == null) {
-                    builder.append(" E ");
+                    builder.append(" _ ");
                 } else {
                     builder.append(" ").append(piece).append(" ");
                 }
             }
-            builder.append("\n");
+            String str = "  " + (7 - i) + "\n";
+            builder.append(str);
         }
+        builder.append(" A  B  C  D  E  F  G  H \n");
         return builder.toString();
     }
 
+    public boolean isCheck(Player player) {
+        Tile kingTile = null;
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                Piece piece = getTile(i, j).getPiece();
+                if(piece != null && piece.isWhite() == player.isWhite() && piece instanceof King) {
+                    kingTile = getTile(i, j);
+                }
+            }
+        }
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                Piece piece = getTile(i, j).getPiece();
+                if(piece != null && piece.isWhite() != player.isWhite()) {
+                    List<Move> legalMoves = piece.getLegalMoves(this, getTile(i, j), player);
+                    for(Move move : legalMoves) {
+                        if(move.getEndTile().equals(kingTile)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     public List<Move> getAllLegalMoves(Player player) {
+        if(isCheck(player)) {
+            return getAllLegalMovesInCheck(player);
+        }
         List<Move> legalMoves = new ArrayList<>();
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
@@ -106,5 +177,44 @@ public class Board {
             }
         }
         return legalMoves;
+    }
+
+    private List<Move> getAllLegalMovesInCheck(Player player) {
+        List<Move> legalMoves = new ArrayList<>();
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                Piece piece = getTile(i, j).getPiece();
+                if(piece != null && player.isWhite() == piece.isWhite()) {
+                    legalMoves.addAll(piece.getLegalMoves(this, getTile(i, j), player));
+                }
+            }
+        }
+        List<Move> movesToRemove = new ArrayList<>();
+        for(Move move : legalMoves) {
+            Board board = new Board(this);
+            board.makeMove(move);
+            if(board.isCheck(player)) {
+                movesToRemove.add(move);
+            }
+        }
+        legalMoves.removeAll(movesToRemove);
+        return legalMoves;
+    }
+
+    private void makeMove(Move move) {
+        getTile(move.getEndTile().getX(), move.getEndTile().getY()).setPiece(move.getPieceMoved());
+        getTile(move.getStartTile().getX(), move.getStartTile().getY()).setPiece(null);
+    }
+
+    public Tile getKingTile(Player player) {
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                Piece piece = getTile(i, j).getPiece();
+                if(piece != null && piece.isWhite() == player.isWhite() && piece instanceof King) {
+                    return getTile(i, j);
+                }
+            }
+        }
+        return null;
     }
 }

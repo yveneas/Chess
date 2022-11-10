@@ -18,6 +18,12 @@ public class Tile {
         this.piece = piece;
     }
 
+    public Tile(Tile tile) {
+        this.x = tile.getX();
+        this.y = tile.getY();
+        this.piece = tile.getPiece();
+    }
+
     @Override
     public String toString() {
         if(piece == null) {
