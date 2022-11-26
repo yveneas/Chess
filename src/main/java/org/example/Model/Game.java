@@ -87,7 +87,7 @@ public class Game {
                     return move;
                 }
                 makeMove(move);
-                int value = minimax(depth - 1, alpha, beta, false);
+                int value = minimax(depth - 1, alpha, beta, false) + board.evaluateBoard(currentPlayer, getOpponent());
                 //System.out.println("move: " + move + " value: " + value);
                 undoMove();
                 if (value > bestValue) {
@@ -115,8 +115,8 @@ public class Game {
                     return move;
                 }
                 makeMove(move);
-                int value = minimax(depth - 1, alpha, beta, true);
-
+                int value = minimax(depth - 1, alpha, beta, true) + board.evaluateBoard(currentPlayer, getOpponent());
+                //System.out.println("move: " + move + " value: " + value);
                 undoMove();
                 if (value < bestValue) {
                     bestValue = value;
@@ -148,7 +148,8 @@ public class Game {
             int maxEval = Integer.MIN_VALUE;
             List<Move> allMoves = board.getAllLegalMoves(currentPlayer);
             for (Move move : allMoves) {
-                if(board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).getPiece() instanceof King) {
+                Piece destPiece = board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).getPiece();
+                if(destPiece != null && destPiece.isWhite() == currentPlayer.isWhite() &&  destPiece instanceof King) {
                     return Integer.MAX_VALUE;
                 }
                 makeMove(move);
@@ -165,7 +166,8 @@ public class Game {
             int minEval = Integer.MAX_VALUE;
             List<Move> allMoves = board.getAllLegalMoves(currentPlayer);
             for (Move move : allMoves) {
-                if(board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).getPiece() instanceof King) {
+                Piece destPiece = board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).getPiece();
+                if(destPiece != null && destPiece.isWhite() == currentPlayer.isWhite() &&  destPiece instanceof King) {
                     return Integer.MIN_VALUE;
                 }
                 makeMove(move);

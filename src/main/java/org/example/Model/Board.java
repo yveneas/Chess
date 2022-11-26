@@ -1,7 +1,6 @@
 package org.example.Model;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.example.Model.Pieces.*;
 
 import java.util.ArrayList;
@@ -83,29 +82,31 @@ public class Board {
                     if(piece != null) {
                         if(piece.isWhite() == currentPlayer.isWhite()) {
                             score += piece.getWeight();
+                            score += currentPlayer.getPiecePlacementScore(piece, i, j);
                         } else {
                             score -= piece.getWeight();
+                            score -= currentPlayer.getPiecePlacementScore(piece, i, j);
                         }
                     }
                 } else {
                     if(piece != null) {
                         if(piece.isWhite() == currentPlayer.isWhite()) {
                             score -= piece.getWeight();
+                            score -= currentPlayer.getPiecePlacementScore(piece, i, j);
                         } else {
                             score += piece.getWeight();
+                            score += currentPlayer.getPiecePlacementScore(piece, i, j);
                         }
                     }
                 }
             }
         }
-        if(currentPlayer.isWhite() && isCheck(currentPlayer)) {
+        //Si le joueur blanc (joueur courant) est en échec OU si le joueur noir met en échec le joueur blanc on retire 850 points
+        if(currentPlayer.isWhite() && isCheck(currentPlayer) || !currentPlayer.isWhite() && isCheck(opponent)) {
             score -= 850;
-        } else if(!currentPlayer.isWhite() && isCheck(currentPlayer)) {
+        //Si le joueur noir (joueur courant) est en échec OU si le joueur blanc met en échec le joueur noir on ajoute 850 points
+        } else if(!currentPlayer.isWhite() && isCheck(currentPlayer) || currentPlayer.isWhite() && isCheck(opponent)) {
             score += 850;
-        } else if(currentPlayer.isWhite() && isCheck(opponent)) {
-            score += 850;
-        } else if(!currentPlayer.isWhite() && isCheck(opponent)) {
-            score -= 850;
         }
         if(Game.moveHistory.size() > 0 && Game.moveHistory.get(Game.moveHistory.size() - 1).getPieceKilled() != null) {
             if(currentPlayer.isWhite() == Game.moveHistory.get(Game.moveHistory.size() - 1).getPlayer().isWhite()) {
@@ -143,6 +144,7 @@ public class Board {
                 Piece piece = getTile(i, j).getPiece();
                 if(piece != null && piece.isWhite() == player.isWhite() && piece instanceof King) {
                     kingTile = getTile(i, j);
+                    break;
                 }
             }
         }
@@ -163,16 +165,22 @@ public class Board {
     }
 
     public List<Move> getAllLegalMoves(Player player) {
-        if(isCheck(player)) {
-            return getAllLegalMovesInCheck(player);
-        }
         List<Move> legalMoves = new ArrayList<>();
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
                 Piece piece = getTile(i, j).getPiece();
                 //System.out.println(i + " " + j);
                 if(piece != null && player.isWhite() == piece.isWhite()) {
-                    legalMoves.addAll(piece.getLegalMoves(this, getTile(i, j), player));
+                    List<Move> pieceLegalMoves = piece.getLegalMoves(this, getTile(i, j), player);
+                    for(Move move : pieceLegalMoves) {
+                        makeMove(move);
+                        if(!isCheck(player)) {
+                            legalMoves.add(move);
+                        }
+                        undoMove(move);
+                        //legalMoves.add(move);
+                    }
+                    //legalMoves.addAll(piece.getLegalMoves(this, getTile(i, j), player));
                 }
             }
         }
@@ -206,6 +214,11 @@ public class Board {
         getTile(move.getStartTile().getX(), move.getStartTile().getY()).setPiece(null);
     }
 
+    private void undoMove(Move move) {
+        getTile(move.getStartTile().getX(), move.getStartTile().getY()).setPiece(move.getPieceMoved());
+        getTile(move.getEndTile().getX(), move.getEndTile().getY()).setPiece(move.getPieceKilled());
+    }
+
     public Tile getKingTile(Player player) {
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
@@ -216,5 +229,9 @@ public class Board {
             }
         }
         return null;
+    }
+
+    public Tile getTile(String string) {
+        return getTile(string.charAt(0) - 'a', (string.charAt(1) - '1'));
     }
 }

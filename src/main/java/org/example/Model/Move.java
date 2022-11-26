@@ -41,8 +41,8 @@ public class Move {
     }*/
     @Override
     public String toString() {
-        return "bestmove " + (char) (startTile.getX() + 'a') + startTile.getY() +
-                (char) (endTile.getX() + 'a') + endTile.getY();
+        return "bestmove " + (char) (startTile.getX() + 'a') + (startTile.getY() + 1) +
+                (char) (endTile.getX() + 'a') + (endTile.getY() + 1);
     }
 
     public boolean equals(Move move) {
