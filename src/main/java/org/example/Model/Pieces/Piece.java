@@ -9,6 +9,9 @@ import org.example.Model.Tile;
 
 import java.util.List;
 
+/**
+ * This class represents a Piece.
+ */
 public abstract class Piece {
     @Getter @Setter
     private boolean killed;

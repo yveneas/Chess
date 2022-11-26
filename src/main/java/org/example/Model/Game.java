@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * This class represents the game itself.
+ */
 public class Game {
     @Getter @Setter
     private List<Player> players;
@@ -27,6 +30,11 @@ public class Game {
         this.initialize(player1, player2);
     }
 
+    /**
+     * This method initializes the game.
+     * @param player1 The first player.
+     * @param player2 The second player.
+     */
     private void initialize(Player player1, Player player2) {
         this.players.add(player1);
         this.players.add(player2);
@@ -40,6 +48,10 @@ public class Game {
         gameStatus = GameStatus.ACTIVE;
     }
 
+    /**
+     * This method is used to make a move.
+     * @param move to be made.
+     */
     public void makeMove(Move move) {
         if (move.getPieceKilled() instanceof King) {
             if (move.getPlayer().isWhite()) {
@@ -58,6 +70,9 @@ public class Game {
         }
     }
 
+    /**
+     * This method is used to undo a move.
+     */
     public void undoMove() {
         if (moveHistory.size() > 0) {
             Move lastMove = moveHistory.get(moveHistory.size() - 1);
@@ -73,6 +88,14 @@ public class Game {
         gameStatus = GameStatus.ACTIVE;
     }
 
+    /**
+     * This method is used to get the best move for the current player.
+     * @param depth of the search tree
+     * @param alpha the alpha value
+     * @param beta the beta value
+     * @param maximizingPlayer the player who is maximizing
+     * @return the best move
+     */
     public Move bestMove(int depth, int alpha, int beta, boolean maximizingPlayer) {
         if (depth == 0) {
             return null;
@@ -80,15 +103,15 @@ public class Game {
         List<Move> equalMoves = new ArrayList<>();
         List<Move> possibleMoves = board.getAllLegalMoves(currentPlayer);
         Move bestMove = null;
+        int bestValue;
         if (maximizingPlayer) {
-            int bestValue = Integer.MIN_VALUE;
+            bestValue = Integer.MIN_VALUE;
             for (Move move : possibleMoves) {
-                if(board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).getPiece() instanceof King) {
+                if (board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).getPiece() instanceof King) {
                     return move;
                 }
                 makeMove(move);
                 int value = minimax(depth - 1, alpha, beta, false) + board.evaluateBoard(currentPlayer, getOpponent());
-                //System.out.println("move: " + move + " value: " + value);
                 undoMove();
                 if (value > bestValue) {
                     bestValue = value;
@@ -103,27 +126,25 @@ public class Game {
                     break;
                 }
             }
-            if(equalMoves.size() > 1) {
+            if (equalMoves.size() > 1) {
                 Random random = new Random();
                 bestMove = equalMoves.get(random.nextInt(equalMoves.size()));
             }
-            return bestMove;
         } else {
-            int bestValue = Integer.MAX_VALUE;
+            bestValue = Integer.MAX_VALUE;
             for (Move move : possibleMoves) {
-                if(board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).getPiece() instanceof King) {
+                if (board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).getPiece() instanceof King) {
                     return move;
                 }
                 makeMove(move);
                 int value = minimax(depth - 1, alpha, beta, true) + board.evaluateBoard(currentPlayer, getOpponent());
-                //System.out.println("move: " + move + " value: " + value);
                 undoMove();
                 if (value < bestValue) {
                     bestValue = value;
                     bestMove = move;
                     equalMoves.clear();
                     equalMoves.add(move);
-                } else if(value == bestValue) {
+                } else if (value == bestValue) {
                     equalMoves.add(move);
                 }
                 beta = Math.min(beta, bestValue);
@@ -131,25 +152,34 @@ public class Game {
                     break;
                 }
             }
-            if(equalMoves.size() > 1) {
+            if (equalMoves.size() > 1) {
                 Random random = new Random();
                 bestMove = equalMoves.get(random.nextInt(equalMoves.size()));
             }
-            return bestMove;
         }
+
+        return bestMove;
     }
 
+    /**
+     * This method implements the minimax algorithm.
+     * @param depth of the search tree
+     * @param alpha the alpha value
+     * @param beta the beta value
+     * @param maximizingPlayer the player who is maximizing
+     * @return the best value
+     */
     private int minimax(int depth, int alpha, int beta, boolean maximizingPlayer) {
         if (depth == 0 || gameStatus != GameStatus.ACTIVE) {
-            //System.out.println("Evaluation: " + board.evaluateBoard(currentPlayer, getOpponent()) + " moves: " + moveHistory);
             return board.evaluateBoard(currentPlayer, getOpponent());
         }
+
         if (maximizingPlayer) {
             int maxEval = Integer.MIN_VALUE;
             List<Move> allMoves = board.getAllLegalMoves(currentPlayer);
             for (Move move : allMoves) {
                 Piece destPiece = board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).getPiece();
-                if(destPiece != null && destPiece.isWhite() == currentPlayer.isWhite() &&  destPiece instanceof King) {
+                if (destPiece != null && destPiece.isWhite() == currentPlayer.isWhite() &&  destPiece instanceof King) {
                     return Integer.MAX_VALUE;
                 }
                 makeMove(move);
@@ -167,7 +197,7 @@ public class Game {
             List<Move> allMoves = board.getAllLegalMoves(currentPlayer);
             for (Move move : allMoves) {
                 Piece destPiece = board.getTile(move.getEndTile().getX(), move.getEndTile().getY()).getPiece();
-                if(destPiece != null && destPiece.isWhite() == currentPlayer.isWhite() &&  destPiece instanceof King) {
+                if (destPiece != null && destPiece.isWhite() == currentPlayer.isWhite() &&  destPiece instanceof King) {
                     return Integer.MIN_VALUE;
                 }
                 makeMove(move);
@@ -183,12 +213,12 @@ public class Game {
         }
     }
 
+    /**
+     * This method is used to get the opponent of the current player.
+     * @return the opponent player
+     */
     public Player getOpponent() {
         return currentPlayer == players.get(0) ? players.get(1) : players.get(0);
-    }
-
-    public boolean isCheckMate() {
-        return moveHistory.get(moveHistory.size() - 1).getPieceKilled() instanceof King;
     }
 }
 

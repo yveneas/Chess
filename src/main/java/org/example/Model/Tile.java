@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.Model.Pieces.Piece;
 
+/**
+ * This class represents a tile on the board.
+ */
 public class Tile {
     @Getter @Setter
     private int x;
@@ -24,23 +27,24 @@ public class Tile {
         this.piece = tile.getPiece();
     }
 
+    /**
+     * This method checks if the tile is empty.
+     * @return true if the tile is empty, false otherwise.
+     */
     public boolean isOccupied() {
         return piece != null;
     }
 
+    /**
+     * This method is used to print the tile.
+     * @return a string representation of the tile.
+     */
     @Override
     public String toString() {
-        if(piece == null) {
-            return "Tile{" +
-                    "x=" + x +
-                    ", y=" + y +
-                    ", piece=null" +
-                    '}';
+        if (piece == null) {
+            return "Tile{x=" + x + ", y=" + y + ", piece=null" +'}';
         }
-        return "Tile{" +
-                "x=" + x +
-                ", y=" + y +
-                ", piece=" + piece +
-                '}';
+
+        return "Tile{x=" + x + ", y=" + y + ", piece=" + piece + '}';
     }
 }

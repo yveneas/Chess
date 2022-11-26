@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.Model.Pieces.Piece;
 
+/**
+ * This class represents a move in the game.
+ */
 public class Move {
     @Getter @Setter
     private Player player;
@@ -27,6 +30,7 @@ public class Move {
         pieceMoved = null;
         pieceKilled = null;
     }
+
     public Move(Tile startTile, Tile endTile, Player player) {
         this.startTile = startTile;
         this.endTile = endTile;
@@ -35,16 +39,21 @@ public class Move {
         this.player = player;
     }
 
-    /*public int getEvaluation(Board board) {
-        return board.evaluateBoard(player);
-        //return (this.pieceKilled == null ? 0 : this.pieceKilled.getWeight());
-    }*/
+    /**
+     * This method returns the best move in uci notation.
+     * @return the best move in uci notation.
+     */
     @Override
     public String toString() {
         return "bestmove " + (char) (startTile.getX() + 'a') + (startTile.getY() + 1) +
                 (char) (endTile.getX() + 'a') + (endTile.getY() + 1);
     }
 
+    /**
+     * This method is used to check if two moves are equal.
+     * @param move to compare with.
+     * @return true if the moves are equal, false otherwise.
+     */
     public boolean equals(Move move) {
         return ((startTile == move.getStartTile() && endTile == move.getEndTile()) || (startTile == move.getEndTile() && endTile == move.getStartTile())) && pieceMoved == move.getPieceMoved() && pieceKilled == move.getPieceKilled();
     }

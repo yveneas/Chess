@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.Model.Pieces.*;
 
+/**
+ * This class represents a player.
+ */
 public class Player {
     @Getter @Setter
     private boolean white;
@@ -11,7 +14,7 @@ public class Player {
     private boolean turn;
 
     @Getter
-    static int[][] pawnBoard ={//attribute to http://chessprogramming.wikispaces.com/Simplified+evaluation+function
+    static int[][] pawnBoard ={
             { 0,  0,  0,  0,  0,  0,  0,  0},
             {50, 50, 50, 50, 50, 50, 50, 50},
             {10, 10, 20, 30, 30, 20, 10, 10},
@@ -86,7 +89,13 @@ public class Player {
         this.turn = false;
     }
 
-
+    /**
+     * This method returns the value of a piece.
+     * @param piece to get the value of.
+     * @param i row of the piece.
+     * @param j column of the piece.
+     * @return the value of the piece.
+     */
     public int getPiecePlacementScore(Piece piece, int i, int j) {
         if (piece instanceof Pawn) {
             if (piece.isWhite()) {
@@ -125,6 +134,7 @@ public class Player {
                 return kingMidBoard[7 - i][j];
             }
         }
+
         return 0;
     }
 }
