@@ -1,5 +1,6 @@
 package org.example.Model.Pieces;
 
+import lombok.Getter;
 import org.example.Model.Board;
 import org.example.Model.Move;
 import org.example.Model.Player;
@@ -12,6 +13,17 @@ import java.util.List;
  * This class represents a Bishop piece.
  */
 public class Bishop extends Piece {
+
+    @Getter
+    static int[][] bishopBoard ={
+            {-20,-10,-10,-10,-10,-10,-10,-20},
+            {-10,  0,  0,  0,  0,  0,  0,-10},
+            {-10,  0,  5, 10, 10,  5,  0,-10},
+            {-10,  5,  5, 10, 10,  5,  5,-10},
+            {-10,  0, 10, 10, 10, 10,  0,-10},
+            {-10, 10, 10, 10, 10, 10, 10,-10},
+            {-10,  5,  0,  0,  0,  0,  5,-10},
+            {-20,-10,-10,-10,-10,-10,-10,-20}};
 
     public Bishop(boolean color) {
         super(color);
@@ -108,6 +120,17 @@ public class Bishop extends Piece {
             }
         }
         return legalMoves;
+    }
+
+    /**
+     * This method returns the value of the Bishop on the board.
+     * @param i the x coordinate of the Bishop.
+     * @param j the y coordinate of the Bishop.
+     * @return the value of the Bishop on the board.
+     */
+    @Override
+    public int getPiecePlacementScore(int i, int j) {
+        return this.isWhite() ? bishopBoard[i][j] : bishopBoard[7 - i][7 - j];
     }
 
     /**

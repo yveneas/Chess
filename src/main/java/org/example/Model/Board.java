@@ -102,20 +102,20 @@ public class Board {
                     if (piece != null) {
                         if (piece.isWhite() == currentPlayer.isWhite()) {
                             score += piece.getWeight();
-                            score += currentPlayer.getPiecePlacementScore(piece, i, j);
+                            score += piece.getPiecePlacementScore(i, j);
                         } else {
                             score -= piece.getWeight();
-                            score -= currentPlayer.getPiecePlacementScore(piece, i, j);
+                            score -= piece.getPiecePlacementScore(i, j);
                         }
                     }
                 } else {
                     if (piece != null) {
                         if (piece.isWhite() == currentPlayer.isWhite()) {
                             score -= piece.getWeight();
-                            score -= currentPlayer.getPiecePlacementScore(piece, i, j);
+                            score -= piece.getPiecePlacementScore(i, j);
                         } else {
                             score += piece.getWeight();
-                            score += currentPlayer.getPiecePlacementScore(piece, i, j);
+                            score += piece.getPiecePlacementScore(i, j);
                         }
                     }
                 }

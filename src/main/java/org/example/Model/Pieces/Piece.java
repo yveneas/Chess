@@ -29,6 +29,9 @@ public abstract class Piece {
     public abstract boolean canMove(Board board, Tile startTile, Tile endTile);
 
     public abstract List<Move> getLegalMoves(Board board, Tile startTile, Player player);
+
+    public abstract int getPiecePlacementScore(int i, int j);
+
     @Override
     public abstract String toString();
 }

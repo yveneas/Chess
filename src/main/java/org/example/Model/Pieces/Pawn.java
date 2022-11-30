@@ -1,5 +1,6 @@
 package org.example.Model.Pieces;
 
+import lombok.Getter;
 import org.example.Model.*;
 
 import java.util.ArrayList;
@@ -9,6 +10,17 @@ import java.util.List;
  * This class represents a Pawn piece.
  */
 public class Pawn extends Piece {
+
+    @Getter
+    static int[][] pawnBoard ={
+            { 0,  0,  0,  0,  0,  0,  0,  0},
+            {50, 50, 50, 50, 50, 50, 50, 50},
+            {10, 10, 20, 30, 30, 20, 10, 10},
+            { 5,  5, 10, 25, 25, 10,  5,  5},
+            { 0,  0,  0, 20, 20,  0,  0,  0},
+            { 5, -5,-10,  0,  0,-10, -5,  5},
+            { 5, 10, 10,-20,-20, 10, 10,  5},
+            { 0,  0,  0,  0,  0,  0,  0,  0}};
 
     public Pawn(boolean color) {
         super(color);
@@ -120,6 +132,17 @@ public class Pawn extends Piece {
         }
 
         return legalMoves;
+    }
+
+    /**
+     * This method returns the value of the Pawn on the board.
+     * @param i the x coordinate of the Pawn.
+     * @param j the y coordinate of the Pawn.
+     * @return the value of the Pawn on the board.
+     */
+    @Override
+    public int getPiecePlacementScore(int i, int j) {
+        return this.isWhite() ? pawnBoard[i][j] : pawnBoard[7 - i][7 - j];
     }
 
     /**

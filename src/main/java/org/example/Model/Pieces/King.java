@@ -15,6 +15,28 @@ import java.util.List;
 public class King extends Piece {
     @Getter @Setter
     private boolean castlingDone = false;
+
+    @Getter
+    static int[][] kingMidBoard ={
+            {-30,-40,-40,-50,-50,-40,-40,-30},
+            {-30,-40,-40,-50,-50,-40,-40,-30},
+            {-30,-40,-40,-50,-50,-40,-40,-30},
+            {-30,-40,-40,-50,-50,-40,-40,-30},
+            {-20,-30,-30,-40,-40,-30,-30,-20},
+            {-10,-20,-20,-20,-20,-20,-20,-10},
+            { 20, 20,  0,  0,  0,  0, 20, 20},
+            { 20, 30, 10,  0,  0, 10, 30, 20}};
+    @Getter
+    static int[][] kingEndBoard ={
+            {-50,-40,-30,-20,-20,-30,-40,-50},
+            {-30,-20,-10,  0,  0,-10,-20,-30},
+            {-30,-10, 20, 30, 30, 20,-10,-30},
+            {-30,-10, 30, 40, 40, 30,-10,-30},
+            {-30,-10, 30, 40, 40, 30,-10,-30},
+            {-30,-10, 20, 30, 30, 20,-10,-30},
+            {-30,-30,  0,  0,  0,  0,-30,-30},
+            {-50,-30,-30,-30,-30,-30,-30,-50}};
+
     public King(boolean color) {
         super(color);
         this.setWeight(900);
@@ -62,6 +84,17 @@ public class King extends Piece {
         }
 
         return legalMoves;
+    }
+
+    /**
+     * This method returns the value of the King on the board.
+     * @param i the x coordinate of the King.
+     * @param j the y coordinate of the King.
+     * @return the value of the King on the board.
+     */
+    @Override
+    public int getPiecePlacementScore(int i, int j) {
+        return this.isWhite() ? kingMidBoard[i][j] : kingMidBoard[7 - i][7 - j];
     }
 
     /**

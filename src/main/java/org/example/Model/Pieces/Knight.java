@@ -1,5 +1,6 @@
 package org.example.Model.Pieces;
 
+import lombok.Getter;
 import org.example.Model.Board;
 import org.example.Model.Move;
 import org.example.Model.Player;
@@ -12,6 +13,17 @@ import java.util.List;
  * This class represents a Knight piece.
  */
 public class Knight extends Piece {
+
+    @Getter
+    static int[][] knightBoard ={
+            {-50,-40,-30,-30,-30,-30,-40,-50},
+            {-40,-20,  0,  0,  0,  0,-20,-40},
+            {-30,  0, 10, 15, 15, 10,  0,-30},
+            {-30,  5, 15, 20, 20, 15,  5,-30},
+            {-30,  0, 15, 20, 20, 15,  0,-30},
+            {-30,  5, 10, 15, 15, 10,  5,-30},
+            {-40,-20,  0,  5,  5,  0,-20,-40},
+            {-50,-40,-30,-30,-30,-30,-40,-50}};
 
     public Knight(boolean color) {
         super(color);
@@ -61,6 +73,17 @@ public class Knight extends Piece {
         }
 
         return legalMoves;
+    }
+
+    /**
+     * This method returns the value of the Knight on the board.
+     * @param i the x coordinate of the Knight.
+     * @param j the y coordinate of the Knight.
+     * @return the value of the Knight on the board.
+     */
+    @Override
+    public int getPiecePlacementScore(int i, int j) {
+        return this.isWhite() ? knightBoard[i][j] : knightBoard[7 - i][7 - j];
     }
 
      /**

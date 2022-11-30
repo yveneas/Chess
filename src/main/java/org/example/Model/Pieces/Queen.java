@@ -1,5 +1,6 @@
 package org.example.Model.Pieces;
 
+import lombok.Getter;
 import org.example.Model.Board;
 import org.example.Model.Move;
 import org.example.Model.Player;
@@ -12,6 +13,17 @@ import java.util.List;
  * This class represents a Queen piece.
  */
 public class Queen extends Piece {
+
+    @Getter
+    static int[][] queenBoard ={
+            {-20,-10,-10, -5, -5,-10,-10,-20},
+            {-10,  0,  0,  0,  0,  0,  0,-10},
+            {-10,  0,  5,  5,  5,  5,  0,-10},
+            { -5,  0,  5,  5,  5,  5,  0, -5},
+            {  0,  0,  5,  5,  5,  5,  0, -5},
+            {-10,  5,  5,  5,  5,  5,  0,-10},
+            {-10,  0,  5,  0,  0,  0,  0,-10},
+            {-20,-10,-10, -5, -5,-10,-10,-20}};
 
     public Queen(boolean color) {
         super(color);
@@ -170,6 +182,17 @@ public class Queen extends Piece {
         }
 
         return legalMoves;
+    }
+
+    /**
+     * This method returns the value of the Queen on the board.
+     * @param i the x coordinate of the Queen.
+     * @param j the y coordinate of the Queen.
+     * @return the value of the Queen on the board.
+     */
+    @Override
+    public int getPiecePlacementScore(int i, int j) {
+        return this.isWhite() ? queenBoard[i][j] : queenBoard[7 - i][7 - j];
     }
 
     /**

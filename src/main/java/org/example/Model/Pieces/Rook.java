@@ -18,6 +18,17 @@ public class Rook extends Piece {
     @Getter @Setter
     private boolean castlingDone = false;
 
+    @Getter
+    static int[][] rookBoard ={
+            { 0,  0,  0,  0,  0,  0,  0,  0},
+            { 5, 10, 10, 10, 10, 10, 10,  5},
+            {-5,  0,  0,  0,  0,  0,  0, -5},
+            {-5,  0,  0,  0,  0,  0,  0, -5},
+            {-5,  0,  0,  0,  0,  0,  0, -5},
+            {-5,  0,  0,  0,  0,  0,  0, -5},
+            {-5,  0,  0,  0,  0,  0,  0, -5},
+            { 0,  0,  0,  5,  5,  0,  0,  0}};
+
     public Rook(boolean color) {
         super(color);
         this.setWeight(50);
@@ -115,6 +126,17 @@ public class Rook extends Piece {
         }
 
         return legalMoves;
+    }
+
+    /**
+     * This method returns the value of the Rook on the board.
+     * @param i the x coordinate of the Rook.
+     * @param j the y coordinate of the Rook.
+     * @return the value of the Rook on the board.
+     */
+    @Override
+    public int getPiecePlacementScore(int i, int j) {
+        return this.isWhite() ? rookBoard[i][j] : rookBoard[7 - i][7 - j];
     }
 
     /**
